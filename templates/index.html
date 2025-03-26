@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Online Harm Detection Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            text-align: center;
+            margin: 20px;
+        }
+        h2 {
+            color: #333;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            display: inline-block;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .results {
+            margin-top: 20px;
+            text-align: center;
+            max-width: 90%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        pre {
+            background-color: #333;
+            color: #fff;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+            white-space: pre-wrap; /* Prevent horizontal overflow */
+            word-wrap: break-word;
+            max-height: 60vh; /* Limit height to avoid overflow */
+            overflow-y: auto; /* Scroll vertically if content is too long */
+        }
+    </style>
+</head>
+<body>
+    <h2>Online Harm Detection Dashboard</h2>
+    <button onclick="fetchData('/reddit_feed')">Monitor Reddit</button>
+    <button onclick="fetchData('/twitter_feed')">Monitor X(Twitter)</button>
+    <button onclick="fetchData('/youtube_feed')">Monitor YouTube</button>
+    <button onclick="window.location.href='/reporting'">View Flagged Content Report</button>
+
+
+    <div class="results" id="results"></div>
+
+    <script>
+        function fetchData(endpoint) {
+            const resultsDiv = document.getElementById("results");
+            resultsDiv.innerHTML = "Loading..."; // Show loading message
+
+            fetch(endpoint)
+                .then(response => response.json())
+                .then(data => {
+                    let output = "<pre>" + JSON.stringify(data, null, 4) + "</pre>";
+                    resultsDiv.innerHTML = output;
+                })
+                .catch(error => {
+                    resultsDiv.innerHTML = "<p style='color: red;'>Error: " + error + "</p>";
+                });
+        }
+    </script>
+</body>
+</html>

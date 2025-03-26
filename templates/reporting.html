@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Flagged Content Reporting</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+        }
+        table {
+            margin: 20px auto;
+            border-collapse: collapse;
+            width: 80%;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        th {
+            background-color: #333;
+            color: white;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+    </style>
+</head>
+<body>
+    <h2>Flagged Content Reporting</h2>
+    <table>
+        <tr>
+            <th>Platform</th>
+            <th>Content</th>
+            <th>URL</th>
+            <th>Category</th>
+            <th>Score</th>
+        </tr>
+        {% for item in flagged_content %}
+        <tr>
+            <td>{{ item.platform }}</td>
+            <td>{{ item.content }}</td>
+            <td><a href="{{ item.url }}" target="_blank">{{ item.url }}</a></td>
+            <td>{{ item.category }}</td>
+            <td>{{ item.score }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
