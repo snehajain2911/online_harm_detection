@@ -251,7 +251,7 @@ def reporting():
     return render_template("reporting.html", flagged_content=flagged_content)
 
 
-# ✅ Run the Flask app
 if __name__ == "__main__":
     os.makedirs("uploads", exist_ok=True)
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 8080))  # Use Render's assigned port
+    app.run(host="0.0.0.0", port=port, debug=True)
