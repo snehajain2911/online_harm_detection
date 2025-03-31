@@ -17,6 +17,8 @@ from nltk.corpus import stopwords
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 from pymongo import MongoClient
 from dotenv import load_dotenv
+from youtube_transcript_api import YouTubeTranscriptApi
+from werkzeug.utils import secure_filename
 
 load_dotenv()  # Load .env file
 
@@ -243,6 +245,43 @@ def youtube_feed():
             "misinformation": misinformation
         })
     return jsonify(videos)
+# YouTube Video Analysis Route
+@app.route("/youtube_video_analysis", methods=["GET"])
+def youtube_video_analysis():
+    video_id = request.args.get("video_id")
+    if not video_id:
+        return jsonify({"error": "Missing video ID"}), 400
+    
+    comments = get_video_comments(video_id)
+    transcript = get_video_transcript(video_id)
+    analyzed_comments = [
+        {
+            "comment": comment,
+            "hate_speech": detect_hate_speech(comment),
+            "cyberbullying": predict_cyberbullying(comment),
+            "misinformation": verify_information(comment)
+        }
+        for comment in comments
+    ]
+    return jsonify({"comments": analyzed_comments, "transcript": transcript})
+
+# Fetch YouTube Comments
+def get_video_comments(video_id, max_results=50):
+    comments = []
+    request = youtube.commentThreads().list(part="snippet", videoId=video_id, maxResults=max_results, textFormat="plainText")
+    response = request.execute()
+    for item in response.get("items", []):
+        comments.append(item["snippet"]["topLevelComment"]["snippet"]["textDisplay"])
+    return comments
+
+# Fetch YouTube Transcript
+def get_video_transcript(video_id):
+    try:
+        transcript = YouTubeTranscriptApi.get_transcript(video_id)
+        return " ".join([t["text"] for t in transcript])
+    except:
+        return "Transcript not available."
+
 # ✅ Reporting Route to Display Flagged Content
 @app.route("/reporting")
 def reporting():
@@ -250,8 +289,36 @@ def reporting():
     flagged_content = list(collection.find())
     return render_template("reporting.html", flagged_content=flagged_content)
 
+# Ensure the upload directory exists
+UPLOAD_FOLDER = "uploads"
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
+# 📸 Image Upload and Processing
+@app.route("/upload", methods=["POST"])
+def upload_image():
+    if "image" not in request.files:
+        return jsonify({"error": "No image uploaded"}), 400
+    
+    image = request.files["image"]
+    caption = request.form.get("caption", "")
+    image_path = os.path.join(app.config["UPLOAD_FOLDER"], secure_filename(image.filename))
+    image.save(image_path)
+
+    extracted_text = extract_text(image_path)  # Function to extract text from image
+    hate_speech_analysis = detect_hate_speech(extracted_text)
+    cyberbullying_prediction = predict_cyberbullying(extracted_text)
+    misinformation = verify_information(extracted_text)
+
+    return jsonify({
+        "extracted_text": extracted_text,
+        "hate_speech": hate_speech_analysis,
+        "cyberbullying": cyberbullying_prediction,
+        "misinformation": misinformation
+    })
+
+
+# ✅ Run the Flask app
 if __name__ == "__main__":
     os.makedirs("uploads", exist_ok=True)
-    port = int(os.environ.get("PORT", 8080))  # Use Render's assigned port
-    app.run(host="0.0.0.0", port=port, debug=True)
+    app.run(debug=True)

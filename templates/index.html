@@ -43,6 +43,21 @@
             max-height: 60vh; /* Limit height to avoid overflow */
             overflow-y: auto; /* Scroll vertically if content is too long */
         }
+        /* Styling for YouTube ID input section */
+        .yt-section {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            display: inline-block;
+        }
+        input {
+            padding: 10px;
+            margin: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
     </style>
 </head>
 <body>
@@ -52,6 +67,18 @@
     <button onclick="fetchData('/youtube_feed')">Monitor YouTube</button>
     <button onclick="window.location.href='/reporting'">View Flagged Content Report</button>
 
+    <!-- Section for YouTube Video ID Input and Analysis -->
+    <div class="yt-section">
+        <h3>Analyze YouTube Video</h3>
+        <input type="text" id="youtube_id" placeholder="Enter YouTube Video ID">
+        <button onclick="analyzeYouTubeVideo()">Analyze Video</button>
+    </div>
+      <!-- Image Upload Section -->
+      <div class="input-container">
+        <h3>Upload Image for Analysis</h3>
+        <input type="file" id="imageUpload">
+        <button onclick="uploadImage()">Upload & Analyze</button>
+    </div>
 
     <div class="results" id="results"></div>
 
@@ -70,6 +97,49 @@
                     resultsDiv.innerHTML = "<p style='color: red;'>Error: " + error + "</p>";
                 });
         }
+
+        // Function to analyze YouTube video based on entered ID
+        function analyzeYouTubeVideo() {
+            const videoId = document.getElementById("youtube_id").value;
+            if (!videoId) {
+                alert("Please enter a YouTube Video ID");
+                return;
+            }
+
+            fetch(`/youtube_video_analysis?video_id=${videoId}`)
+                .then(response => response.json())
+                .then(data => {
+                    let output = "<h3>Analysis Results</h3><pre>" + JSON.stringify(data, null, 4) + "</pre>";
+                    document.getElementById("results").innerHTML = output;
+                })
+                .catch(error => {
+                    document.getElementById("results").innerHTML = "<p style='color: red;'>Error: " + error + "</p>";
+                });
+        }
+        function uploadImage() {
+            const imageInput = document.getElementById("imageUpload");
+            if (!imageInput.files.length) {
+                alert("Please select an image to upload.");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append("image", imageInput.files[0]);
+
+            fetch("/upload", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                let output = "<h3>Image Analysis Results</h3><pre>" + JSON.stringify(data, null, 4) + "</pre>";
+                document.getElementById("results").innerHTML = output;
+            })
+            .catch(error => {
+                document.getElementById("results").innerHTML = "<p style='color: red;'>Error: " + error + "</p>";
+            });
+        }
+
     </script>
 </body>
 </html>
