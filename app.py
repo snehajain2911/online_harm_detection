@@ -20,6 +20,9 @@ from pymongo import MongoClient
 from dotenv import load_dotenv
 from youtube_transcript_api import YouTubeTranscriptApi
 from werkzeug.utils import secure_filename
+from functools import lru_cache
+import torch
+
 
 load_dotenv()  # Load .env file
 
@@ -68,17 +71,24 @@ YOUTUBE_API_SERVICE_NAME = "youtube"
 YOUTUBE_API_VERSION = "v3"
 youtube = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION, developerKey=API_KEY)
 
-# ✅ Load Cyberbullying Model and Vectorizer
-with open("model.pkl", "rb") as model_file:
-    cyberbullying_model = pickle.load(model_file)
-with open("vectorizer.pkl", "rb") as vectorizer_file:
-    vectorizer = pickle.load(vectorizer_file)
 
-# ✅ Load Misinformation Detection Model
+@lru_cache(maxsize=1)
+def load_cyberbullying_model():
+    with open("model.pkl", "rb") as model_file:
+        return pickle.load(model_file)
 
-misinfo_model = AutoModelForSequenceClassification.from_pretrained("distilbert-base-uncased")
-misinfo_tokenizer = AutoTokenizer.from_pretrained("distilbert-base-uncased")
+@lru_cache(maxsize=1)
+def load_vectorizer():
+    with open("vectorizer.pkl", "rb") as vectorizer_file:
+        return pickle.load(vectorizer_file)
 
+@lru_cache(maxsize=1)
+def load_misinformation_model():
+    return AutoModelForSequenceClassification.from_pretrained("distilbert-base-uncased")
+
+@lru_cache(maxsize=1)
+def load_misinformation_tokenizer():
+    return AutoTokenizer.from_pretrained("distilbert-base-uncased")
 
 
 # ✅ Text Cleaning for Cyberbullying Detection
@@ -91,14 +101,19 @@ def clean_text(text):
 # ✅ Cyberbullying Detection
 def predict_cyberbullying(text):
     cleaned_text = clean_text(text)
-    vectorized_text = vectorizer.transform([cleaned_text]).toarray()
-    prediction = cyberbullying_model.predict(vectorized_text)
+    vectorized_text = load_vectorizer().transform([cleaned_text]).toarray()
+    prediction = load_cyberbullying_model().predict(vectorized_text)
     return "Cyberbullying Detected" if prediction[0] == 1 else "No Cyberbullying Detected"
 
 # ✅ Misinformation Detection
 def verify_information(claim):
-    inputs = misinfo_tokenizer(claim, return_tensors="pt")
-    outputs = misinfo_model(**inputs)
+    tokenizer = load_misinformation_tokenizer()
+    model = load_misinformation_model()
+    inputs = tokenizer(claim, return_tensors="pt")
+
+    with torch.no_grad():
+        outputs = model(**inputs)
+
     scores = outputs.logits.softmax(dim=1).detach().numpy()[0]
     result = "True" if scores[1] > scores[0] else "False"
     return result
@@ -324,5 +339,6 @@ def upload_image():
 
 
 if __name__ == "__main__":
+    time.sleep(5)
     port = int(os.environ.get("PORT", 10000))  # Render assigns a port dynamically
     app.run(host="0.0.0.0", port=port)
