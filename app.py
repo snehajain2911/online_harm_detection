@@ -13,6 +13,7 @@ import logging
 import time
 import pickle
 import string
+import nltk
 from nltk.corpus import stopwords
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 from pymongo import MongoClient
@@ -22,6 +23,7 @@ from werkzeug.utils import secure_filename
 
 load_dotenv()  # Load .env file
 
+nltk.download('stopwords')
 
 
 # ✅ Initialize Flask app
@@ -43,7 +45,8 @@ collection = db[COLLECTION_NAME]
 
 
 # ✅ Set Tesseract OCR path (Required for Windows)
-pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+
+pytesseract.pytesseract.tesseract_cmd = '/usr/bin/tesseract'
 
 # ✅ Google Perspective API Setup
 API_KEY = os.getenv("GOOGLE_API_KEY")
