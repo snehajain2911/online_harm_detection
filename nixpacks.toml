@@ -1,5 +1,12 @@
+
 [phases.setup]
-nixPkgs = ["nix", "libglvnd", "python311Full"]
+nixPkgs = ["python311Full", "libglvnd"]
 
+[phases.build]
+cmds = [
+  "pip install -r requirements.txt"
+]
 
+[start]
+cmd = "gunicorn app:app --bind 0.0.0.0:$PORT"
 
