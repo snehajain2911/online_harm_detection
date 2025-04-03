@@ -2,14 +2,13 @@
 nixPkgs = [
   "python311Full", 
   "mesa", 
-  "opencv", 
+  "mesa.drivers",   # Provides libGL.so.1
   "libglvnd", 
-  "libgl1",         # Provides libGL.so.1
-  "glib",           # Fixes OpenCV dependencies
-  "ffmpeg",         # Required if OpenCV uses video-related features
-  "xorg.libX11",    # GUI-related dependency (safe to add)
-  "xorg.libXext",   # Fixes potential OpenCV issues
-  "xorg.libXrender" # Ensures rendering support
+  "glib",           
+  "ffmpeg",         
+  "xorg.libX11",    
+  "xorg.libXext",   
+  "xorg.libXrender"
 ]
 
 [phases.build]
