@@ -1,11 +1,22 @@
 [phases.setup]
-nixPkgs = ["python311Full", "mesa", "mesa.drivers", "libglvnd", "opencv"]
+nixPkgs = [
+  "python311Full", 
+  "mesa", 
+  "opencv", 
+  "libglvnd", 
+  "libgl1",         # Provides libGL.so.1
+  "glib",           # Fixes OpenCV dependencies
+  "ffmpeg",         # Required if OpenCV uses video-related features
+  "xorg.libX11",    # GUI-related dependency (safe to add)
+  "xorg.libXext",   # Fixes potential OpenCV issues
+  "xorg.libXrender" # Ensures rendering support
+]
 
 [phases.build]
 cmds = [
   "python -m ensurepip",
   "pip install --upgrade pip",
-  "pip install --no-cache-dir -r requirements.txt --no-binary opencv-python-headless"
+  "pip install --no-cache-dir -r requirements.txt --no-binary opencv-python opencv-python-headless"
 ]
 
 [start]
