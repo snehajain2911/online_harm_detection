@@ -1,11 +1,11 @@
 [phases.setup]
-nixPkgs = ["python311Full", "mesa", "opencv", "libglvnd"]  # Added libglvnd
+nixPkgs = ["python311Full", "mesa", "mesa.drivers", "libglvnd", "opencv"]
 
 [phases.build]
 cmds = [
   "python -m ensurepip",
   "pip install --upgrade pip",
-  "pip install --no-cache-dir -r requirements.txt --no-binary opencv-python opencv-python-headless"
+  "pip install --no-cache-dir -r requirements.txt --no-binary opencv-python-headless"
 ]
 
 [start]
