@@ -3,8 +3,11 @@ nixPkgs = ["python311Full", "mesa", "opencv"]
 
 [phases.build]
 cmds = [
-  "pip install -r requirements.txt --no-deps"  # Avoid reinstalling OpenCV via pip
+  "python -m ensurepip",
+  "pip install --upgrade pip",
+  "pip install --no-cache-dir -r requirements.txt --no-binary opencv-python opencv-python-headless"
 ]
 
 [start]
 cmd = "gunicorn app:app --bind 0.0.0.0:$PORT"
+
