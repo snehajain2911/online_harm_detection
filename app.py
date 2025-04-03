@@ -151,22 +151,32 @@ def detect_hate_speech(text):
         "threat": {"score": f"{threat}%", "category": categorize(threat)}
     }
 
+import cv2
+
 def optimize_image(image_path):
     #"""Optimize image for better OCR performance while reducing memory usage."""
+    
+    # Load image
     image = cv2.imread(image_path)
     if image is None:
         return None
-    
-    # Resize to reduce memory usage (adjust dimensions as needed)
-    image = cv2.resize(image, (800, 800), interpolation=cv2.INTER_AREA)
-    
+
+    # Resize while maintaining aspect ratio (max width/height of 800)
+    height, width = image.shape[:2]
+    scaling_factor = 800 / max(height, width)  # Scale proportionally
+    new_width = int(width * scaling_factor)
+    new_height = int(height * scaling_factor)
+    image = cv2.resize(image, (new_width, new_height), interpolation=cv2.INTER_AREA)
+
     # Convert to grayscale
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    
-    # Apply thresholding for better contrast
-    gray = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-    
+
+    # Apply adaptive thresholding for better contrast
+    gray = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, 
+                                 cv2.THRESH_BINARY, 11, 2)
+
     return gray
+
 
 # 📸 Image Text Extraction
 def extract_text(image_path):
