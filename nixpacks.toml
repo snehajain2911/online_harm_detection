@@ -1,5 +1,5 @@
 [phases.setup]
-nixPkgs = ["python311Full", "mesa", "opencv"]
+nixPkgs = ["python311Full", "mesa", "opencv", "libglvnd"]  # Added libglvnd
 
 [phases.build]
 cmds = [
@@ -10,4 +10,3 @@ cmds = [
 
 [start]
 cmd = "gunicorn app:app --bind 0.0.0.0:$PORT"
-
