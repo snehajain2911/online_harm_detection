@@ -8,7 +8,7 @@ nixPkgs = [
   "ffmpeg",         
   "xorg.libX11",    
   "xorg.libXext",   
-  "xorg.libXrender"
+  "xorg.libXrender",
   "tesseract"
 ]
 
