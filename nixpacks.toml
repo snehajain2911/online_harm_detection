@@ -1,4 +1,5 @@
 [phases.setup]
-nixPkgs = ["libglvnd", "python311", "pip"]
+nixPkgs = ["nix", "libglvnd", "python311Full"]
+
 
 
