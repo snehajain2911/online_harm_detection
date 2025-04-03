@@ -9,7 +9,7 @@ nixPkgs = [
   "xorg.libX11",    
   "xorg.libXext",   
   "xorg.libXrender",
-  "tesseract"
+  "tesseract-ocr"
 ]
 
 [phases.build]
