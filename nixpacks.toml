@@ -1,12 +1,10 @@
-
 [phases.setup]
-nixPkgs = ["python311Full", "libglvnd"]
+nixPkgs = ["python311Full", "mesa", "opencv"]
 
 [phases.build]
 cmds = [
-  "pip install -r requirements.txt"
+  "pip install -r requirements.txt --no-deps"  # Avoid reinstalling OpenCV via pip
 ]
 
 [start]
 cmd = "gunicorn app:app --bind 0.0.0.0:$PORT"
-
