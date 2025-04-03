@@ -9,6 +9,7 @@ nixPkgs = [
   "xorg.libX11",    
   "xorg.libXext",   
   "xorg.libXrender"
+  "tesseract"
 ]
 
 [phases.build]
@@ -19,4 +20,4 @@ cmds = [
 ]
 
 [start]
-cmd = "gunicorn app:app --bind 0.0.0.0:$PORT"
+cmd = "gunicorn app:app --bind 0.0.0.0:$PORT --workers=4"
