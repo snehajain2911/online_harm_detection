@@ -151,14 +151,31 @@ def detect_hate_speech(text):
         "threat": {"score": f"{threat}%", "category": categorize(threat)}
     }
 
-# 📸 Image Text Extraction
-def extract_text(image_path):
+def optimize_image(image_path):
+    #"""Optimize image for better OCR performance while reducing memory usage."""
     image = cv2.imread(image_path)
     if image is None:
-        return "❌ Error: Could not read image."
+        return None
+    
+    # Resize to reduce memory usage (adjust dimensions as needed)
+    image = cv2.resize(image, (800, 800), interpolation=cv2.INTER_AREA)
+    
+    # Convert to grayscale
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    gray = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
-    text = pytesseract.image_to_string(Image.fromarray(gray)).strip()
+    
+    # Apply thresholding for better contrast
+    gray = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    
+    return gray
+
+# 📸 Image Text Extraction
+def extract_text(image_path):
+    image = optimize_image(image_path)
+    if image is None:
+        return "❌ Error: Could not read image."
+    #gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    #gray = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
+    text = pytesseract.image_to_string(Image.fromarray(image)).strip()
     return text if text else "No text detected."
 
 
