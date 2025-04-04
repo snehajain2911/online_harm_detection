@@ -52,8 +52,8 @@ collection = db[COLLECTION_NAME]
 #ocr_reader = easyocr.Reader(['en'])
  #✅ Set Tesseract OCR path (Required for Windows)
 # Get absolute path to bundled Tesseract binary
-tesseract_binary = os.path.join(os.getcwd(), 'tesseract-ocr', 'tesseract')
-pytesseract.pytesseract.tesseract_cmd = tesseract_binary
+#tesseract_binary = os.path.join(os.getcwd(), 'tesseract-ocr', 'tesseract')
+#pytesseract.pytesseract.tesseract_cmd = tesseract_binary
 #pytesseract.pytesseract.tesseract_cmd = r 'Tesseract-OCR/tesseract.exe'
 
 # ✅ Google Perspective API Setup

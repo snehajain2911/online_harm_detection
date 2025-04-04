@@ -1,15 +1,22 @@
+
 [phases.setup]
 nixPkgs = [
-  "python311Full", 
+  "tesseract",
+  "python311Full",
+  "mesa", 
+  "mesa.drivers",
+  "libglvnd",
   "glib",           
-  "ffmpeg"
+  "ffmpeg",         
+  "xorg.libX11",    
+  "xorg.libXext",   
+  "xorg.libXrender"
 ]
 
 [phases.build]
 cmds = [
   "python -m ensurepip",
   "pip install --upgrade pip",
-  "pip uninstall -y opencv-python", 
   "pip install --no-cache-dir -r requirements.txt"
 ]
 
