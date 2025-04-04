@@ -1,3 +1,4 @@
+
 from flask import Flask, jsonify, render_template, request
 import requests
 import json
@@ -22,6 +23,7 @@ from youtube_transcript_api import YouTubeTranscriptApi
 from werkzeug.utils import secure_filename
 from functools import lru_cache
 import torch
+import easyocr
 
 
 load_dotenv()  # Load .env file
@@ -46,10 +48,13 @@ collection = db[COLLECTION_NAME]
 #db = client[os.getenv("DB_NAME", "online_harm_detection")]
 #collection = db[os.getenv("COLLECTION_NAME", "flagged_content")]
 
-
-# ✅ Set Tesseract OCR path (Required for Windows)
-
-pytesseract.pytesseract.tesseract_cmd = '/usr/bin/tesseract'
+# Initialize OCR reader
+#ocr_reader = easyocr.Reader(['en'])
+ #✅ Set Tesseract OCR path (Required for Windows)
+# Get absolute path to bundled Tesseract binary
+tesseract_binary = os.path.join(os.getcwd(), 'tesseract-ocr', 'tesseract')
+pytesseract.pytesseract.tesseract_cmd = tesseract_binary
+#pytesseract.pytesseract.tesseract_cmd = r 'Tesseract-OCR/tesseract.exe'
 
 # ✅ Google Perspective API Setup
 API_KEY = os.getenv("GOOGLE_API_KEY")
@@ -153,38 +158,17 @@ def detect_hate_speech(text):
 
 import cv2
 
-def optimize_image(image_path):
-    #"""Optimize image for better OCR performance while reducing memory usage."""
-    
-    # Load image
-    image = cv2.imread(image_path)
-    if image is None:
-        return None
-
-    # Resize while maintaining aspect ratio (max width/height of 800)
-    height, width = image.shape[:2]
-    scaling_factor = 800 / max(height, width)  # Scale proportionally
-    new_width = int(width * scaling_factor)
-    new_height = int(height * scaling_factor)
-    image = cv2.resize(image, (new_width, new_height), interpolation=cv2.INTER_AREA)
-
-    # Convert to grayscale
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-
-    # Apply adaptive thresholding for better contrast
-    gray = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, 
-                                 cv2.THRESH_BINARY, 11, 2)
-
-    return gray
-
 
 # 📸 Image Text Extraction
 def extract_text(image_path):
-    image = optimize_image(image_path)
+    image = cv2.imread(image_path)
+    #image = optimize_image(image_path)
     if image is None:
         return "❌ Error: Could not read image."
-    #gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    #gray = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    gray = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
+    #results = ocr_reader.readtext(image)
+    #text= " ".join([res[1] for res in results])
     text = pytesseract.image_to_string(Image.fromarray(image)).strip()
     return text if text else "No text detected."
 
@@ -210,7 +194,7 @@ def home():
 @app.route("/reddit_feed")
 def reddit_feed():
     posts = []
-    for submission in subreddit.new(limit=10):
+    for submission in subreddit.new(limit=2):
         text_analysis = detect_hate_speech(submission.title)
         cyberbullying_prediction = predict_cyberbullying(submission.title)
         misinformation = verify_information(submission.title)
@@ -238,7 +222,7 @@ def reddit_feed():
 def twitter_feed():
     tweets = []
     query = "technology -is:retweet lang:en"
-    response = client.search_recent_tweets(query=query, max_results=10, tweet_fields=["created_at"])
+    response = client.search_recent_tweets(query=query, max_results=2, tweet_fields=["created_at"])
     if response.data:
         for tweet in response.data:
             text_analysis = detect_hate_speech(tweet.text)
@@ -266,7 +250,7 @@ def twitter_feed():
 @app.route("/youtube_feed")
 def youtube_feed():
     videos = []
-    request = youtube.videos().list(part="snippet", chart="mostPopular", regionCode="US", maxResults=10)
+    request = youtube.videos().list(part="snippet", chart="mostPopular", regionCode="US", maxResults=2)
     response = request.execute()
     for item in response["items"]:
         title = item["snippet"]["title"]
@@ -311,7 +295,7 @@ def youtube_video_analysis():
     return jsonify({"comments": analyzed_comments, "transcript": transcript})
 
 # Fetch YouTube Comments
-def get_video_comments(video_id, max_results=50):
+def get_video_comments(video_id, max_results=5):
     comments = []
     request = youtube.commentThreads().list(part="snippet", videoId=video_id, maxResults=max_results, textFormat="plainText")
     response = request.execute()

@@ -8,8 +8,7 @@ nixPkgs = [
   "ffmpeg",         
   "xorg.libX11",    
   "xorg.libXext",   
-  "xorg.libXrender",
-  "tesseract-ocr"
+  "xorg.libXrender"
 ]
 
 [phases.build]
