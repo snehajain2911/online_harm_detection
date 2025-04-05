@@ -34,9 +34,9 @@ nltk.download('stopwords')
 # ✅ Initialize Flask app
 app = Flask(__name__, template_folder="templates")
 CORS(app)
-# ✅ MongoDB Connection 
+
 # ✅ MongoDB Connection
- # Default if not set
+
 MONGO_URL = os.getenv("MONGO_URL") 
 DB_NAME = os.getenv("DB_NAME")
 COLLECTION_NAME = os.getenv("COLLECTION_NAME")
@@ -45,16 +45,6 @@ COLLECTION_NAME = os.getenv("COLLECTION_NAME")
 client = MongoClient(MONGO_URL)
 db = client[DB_NAME]
 collection = db[COLLECTION_NAME]
-#db = client[os.getenv("DB_NAME", "online_harm_detection")]
-#collection = db[os.getenv("COLLECTION_NAME", "flagged_content")]
-
-# Initialize OCR reader
-#ocr_reader = easyocr.Reader(['en'])
- #✅ Set Tesseract OCR path (Required for Windows)
-# Get absolute path to bundled Tesseract binary
-#tesseract_binary = os.path.join(os.getcwd(), 'tesseract-ocr', 'tesseract')
-#pytesseract.pytesseract.tesseract_cmd = tesseract_binary
-#pytesseract.pytesseract.tesseract_cmd = r 'Tesseract-OCR/tesseract.exe'
 
 # ✅ Google Perspective API Setup
 API_KEY = os.getenv("GOOGLE_API_KEY")
@@ -167,8 +157,6 @@ def extract_text(image_path):
         return "❌ Error: Could not read image."
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     gray = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
-    #results = ocr_reader.readtext(image)
-    #text= " ".join([res[1] for res in results])
     text = pytesseract.image_to_string(Image.fromarray(image)).strip()
     return text if text else "No text detected."
 
@@ -351,5 +339,5 @@ def upload_image():
 
 if __name__ == "__main__":
     time.sleep(5)
-    port = int(os.environ.get("PORT", 10000))  # Render assigns a port dynamically
+    port = int(os.environ.get("PORT", 10000))  
     app.run(host="0.0.0.0", port=port)

@@ -26,7 +26,7 @@ ONLINE_HARM_DETECTION/
 ## 📊 How It Works
 1️⃣ **Fetches Data** → Collects **live data** from **Reddit, Twitter, YouTube**  
 2️⃣ **Processes Content** → Applies **NLP & AI models** for analysis  
-3️⃣ **Flags Risky Content** → Stores **harmful content** in **MongoDB**  
+3️⃣ **Flags Risky Content** → Stores **harmful content** in **MongoDB Atlas**  
 4️⃣ **Displays Dashboard** → Shows **real-time reports** in the **web UI**  
 
 ---
@@ -36,9 +36,10 @@ ONLINE_HARM_DETECTION/
 ✅ **Real-time** content moderation across **Reddit, Twitter, and YouTube**  
 ✅ **Image text analysis** using **OCR (Tesseract)**  
 ✅ **Automated reporting** of **risky content**  
-✅ **Web dashboard** to monitor **harmful content detection**  
-✅ **MongoDB storage** for flagged content  
-
+✅ **Manual Image Upload — upload images directly for harm analysis**
+✅ **Flagged Content Dashboard — see content, source, platform, and risk score**
+✅ **MongoDB Atlas Integration for scalable, cloud-based storage**
+✅ **Customizable AI models for improved accuracy and adaptability**
 ---
 
 ## 🛠️ Technologies Used
@@ -49,7 +50,7 @@ ONLINE_HARM_DETECTION/
 | **Hate Speech Detection**| Google Perspective API                                    |
 | **Cyberbullying Model**  | Trained ML model (Scikit-learn, NLP techniques)          |
 | **Misinformation Model** | Transformers (Hugging Face - BERT/DeBERTa-based models)  |
-| **Database**             | MongoDB (for flagged content storage)                     |
+| **Database**             | MongoDB atlas(for flagged content storage)                     |
 | **OCR for Image Analysis** | Tesseract OCR                                           |
 | **Data Sources**         | Reddit (PRAW), Twitter (Tweepy), YouTube API              |
 
