@@ -35,6 +35,8 @@ nltk.download('stopwords')
 app = Flask(__name__, template_folder="templates")
 CORS(app)
 
+# ✅ Set Tesseract OCR path (Required for Windows)
+pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 # ✅ MongoDB Connection
 
 MONGO_URL = os.getenv("MONGO_URL") 
